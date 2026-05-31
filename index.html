@@ -27,7 +27,6 @@
       padding: 20px;
     }
 
-    /* ── HEADER ── */
     header {
       display: flex;
       align-items: center;
@@ -57,7 +56,6 @@
     }
     #tierTitle:focus { border-color: var(--accent); }
 
-    /* ── DESKTOP LAYOUT ── */
     .layout {
       display: flex;
       gap: 20px;
@@ -96,7 +94,6 @@
     .sidebar::-webkit-scrollbar-track { background: transparent; }
     .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-    /* ── TIER ROWS ── */
     .tier {
       display: flex;
       align-items: stretch;
@@ -133,7 +130,6 @@
     }
     .tier-content.drag-over { background: rgba(255,255,255,0.04); }
 
-    /* ── CARDS ── */
     .character {
       width: 80px;
       display: flex;
@@ -149,8 +145,6 @@
     }
     .character:active { cursor: grabbing; }
     .character.dragging { opacity: 0.35; transform: scale(0.93); }
-
-    /* MOBILE: selected state */
     .character.selected {
       outline: 3px solid var(--accent);
       outline-offset: 2px;
@@ -158,7 +152,6 @@
       box-shadow: 0 0 18px rgba(255,215,0,0.45);
       z-index: 2;
     }
-
     .character img {
       width: 70px;
       height: 70px;
@@ -196,7 +189,6 @@
     .sidebar .character img,
     .sidebar .character .avatar-fallback { width: 58px; height: 58px; }
 
-    /* drop indicator */
     .drop-indicator {
       width: 3px;
       height: 70px;
@@ -208,7 +200,6 @@
       box-shadow: 0 0 8px rgba(255,215,0,0.5);
     }
 
-    /* ── BUTTONS ── */
     .btn-row {
       display: flex;
       gap: 12px;
@@ -230,7 +221,6 @@
     .download-btn { background: var(--accent); color: #000; }
     .reset-btn { background: var(--surface2); color: var(--muted); border: 2px solid var(--border); }
 
-    /* ── MOBILE HINT BANNER ── */
     .mobile-hint {
       display: none;
       background: var(--surface2);
@@ -244,7 +234,6 @@
     }
     .mobile-hint strong { color: var(--accent); }
 
-    /* ── BOTTOM SHEET (mobile tier picker) ── */
     .sheet-overlay {
       display: none;
       position: fixed;
@@ -255,7 +244,6 @@
       justify-content: center;
     }
     .sheet-overlay.open { display: flex; }
-
     .sheet {
       background: var(--surface);
       border: 2px solid var(--border);
@@ -270,7 +258,6 @@
       from { transform: translateY(100%); }
       to   { transform: translateY(0); }
     }
-
     .sheet-handle {
       width: 40px;
       height: 4px;
@@ -278,7 +265,6 @@
       border-radius: 2px;
       margin: 0 auto 14px;
     }
-
     .sheet-preview {
       display: flex;
       flex-direction: column;
@@ -317,7 +303,6 @@
       text-transform: uppercase;
       letter-spacing: 1px;
     }
-
     .sheet-tiers {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -332,10 +317,9 @@
       font-size: 26px;
       color: #000;
       cursor: pointer;
-      transition: transform 0.12s, box-shadow 0.12s;
+      transition: transform 0.12s;
     }
     .sheet-tier-btn:active { transform: scale(0.93); }
-
     .sheet-cancel {
       width: 100%;
       padding: 14px;
@@ -349,26 +333,20 @@
       cursor: pointer;
     }
 
-    /* ── MOBILE OVERRIDES ── */
     @media (max-width: 768px) {
       body { padding: 12px; }
       header { flex-wrap: wrap; }
       .logo { font-size: 28px; }
       #tierTitle { font-size: 20px; }
-
       .layout { flex-direction: column; }
       .sidebar { width: 100%; position: static; max-height: none; order: 2; }
       .tiers-col { order: 1; }
-
       .tier-label { width: 48px; font-size: 26px; }
       .character { width: 70px; cursor: pointer; }
       .character img, .character .avatar-fallback { width: 60px; height: 60px; }
-
       .btn-row { flex-direction: column; }
       button { width: 100%; }
       .mobile-hint { display: block; }
-
-      /* hide desktop drag on mobile */
       .character { -webkit-touch-callout: none; }
     }
   </style>
@@ -380,9 +358,8 @@
     <input type="text" id="tierTitle" value="BCA Tier List" placeholder="Title…">
   </header>
 
-  <!-- Mobile hint -->
   <div class="mobile-hint">
-    📱 <strong>Tap a card</strong> to select it, then <strong>tap a tier row</strong> to place it there
+    📱 <strong>Tap a card</strong> to select it, then choose a tier from the popup
   </div>
 
   <div class="layout">
@@ -399,7 +376,6 @@
     </div>
   </div>
 
-  <!-- Bottom Sheet (mobile) -->
   <div class="sheet-overlay" id="sheetOverlay">
     <div class="sheet">
       <div class="sheet-handle"></div>
@@ -414,7 +390,6 @@
   </div>
 
   <script>
-    // ==================== DATA ====================
     const classmates = [
       "Reyna","Abigail","Remi","Sandee","Teresa",
       "Emmai","Francis","Nghaka","Nick","Msa","Tlana",
@@ -434,7 +409,6 @@
 
     const isMobile = () => window.innerWidth <= 768;
 
-    // ==================== BUILD TIERS ====================
     const tiersContainer = document.getElementById('tiers');
     const unrankedContainer = document.getElementById('unranked');
 
@@ -449,7 +423,6 @@
       tiersContainer.appendChild(div);
     });
 
-    // ── Build bottom sheet buttons ──
     const sheetTiersEl = document.getElementById('sheetTiers');
     tierData.forEach(tier => {
       const btn = document.createElement('button');
@@ -459,7 +432,6 @@
       btn.onclick = () => placeSelectedInTier(tier.name);
       sheetTiersEl.appendChild(btn);
     });
-    // Also "back to unranked" in sheet
     const unrankBtn = document.createElement('button');
     unrankBtn.className = 'sheet-tier-btn';
     unrankBtn.style.background = '#333';
@@ -470,15 +442,12 @@
     unrankBtn.onclick = () => placeSelectedInTier(null);
     sheetTiersEl.appendChild(unrankBtn);
 
-    // ==================== CARDS ====================
     function makeCard(id, name) {
       const card = document.createElement('div');
       card.className = 'character';
       card.dataset.id = id;
       card.dataset.name = name;
       card.draggable = true;
-
-      // Image with fallback
       const img = document.createElement('img');
       img.src = `images/${id}.jpg`;
       img.alt = name;
@@ -488,10 +457,8 @@
         fb.textContent = name[0].toUpperCase();
         card.replaceChild(fb, this);
       };
-
       const label = document.createElement('span');
       label.textContent = name;
-
       card.appendChild(img);
       card.appendChild(label);
       return card;
@@ -510,7 +477,7 @@
 
     buildCards();
 
-    // ==================== MOBILE: TAP TO SELECT + PLACE ====================
+    // ── MOBILE TAP ──
     let selectedCard = null;
 
     function selectCard(card) {
@@ -525,32 +492,22 @@
       selectedCard = null;
     }
 
-    // Open bottom sheet
     function openSheet(card) {
-      const overlay = document.getElementById('sheetOverlay');
       document.getElementById('sheetName').textContent = card.dataset.name;
-
-      // Avatar in sheet
       const avatarEl = document.getElementById('sheetAvatar');
       avatarEl.innerHTML = '';
       const img = card.querySelector('img');
       const fb  = card.querySelector('.avatar-fallback');
       if (img) {
         const clone = img.cloneNode();
-        clone.style.width = '64px'; clone.style.height = '64px';
-        clone.style.borderRadius = '10px';
-        clone.style.border = '2px solid var(--accent)';
-        clone.style.objectFit = 'cover';
+        clone.style.cssText = 'width:64px;height:64px;border-radius:10px;border:2px solid var(--accent);object-fit:cover;';
         avatarEl.appendChild(clone);
       } else if (fb) {
         const clone = fb.cloneNode(true);
-        clone.style.width = '64px'; clone.style.height = '64px';
-        clone.style.borderRadius = '10px';
-        clone.style.border = '2px solid var(--accent)';
+        clone.style.cssText = 'width:64px;height:64px;border-radius:10px;border:2px solid var(--accent);';
         avatarEl.appendChild(clone);
       }
-
-      overlay.classList.add('open');
+      document.getElementById('sheetOverlay').classList.add('open');
     }
 
     function closeSheet() {
@@ -570,23 +527,17 @@
       updateCount();
     }
 
-    // Tap on a tier row directly (alternative to sheet) on mobile
     document.querySelectorAll('.tier').forEach(tierRow => {
       tierRow.addEventListener('click', e => {
-        if (!isMobile()) return;
-        if (!selectedCard) return;
-        if (e.target.closest('.character')) return; // tapping a card in the tier — handle separately
-        const tierName = tierRow.dataset.tier;
-        placeSelectedInTier(tierName);
+        if (!isMobile() || !selectedCard || e.target.closest('.character')) return;
+        placeSelectedInTier(tierRow.dataset.tier);
       });
     });
 
-    // Tap cards
     document.addEventListener('click', e => {
       if (!isMobile()) return;
       const card = e.target.closest('.character');
       if (!card) {
-        // tap elsewhere = deselect
         if (!e.target.closest('.sheet') && !e.target.closest('#sheetOverlay')) clearSelection();
         return;
       }
@@ -595,12 +546,11 @@
       selectCard(card);
     });
 
-    // Close sheet on overlay tap
     document.getElementById('sheetOverlay').addEventListener('click', e => {
       if (e.target === document.getElementById('sheetOverlay')) closeSheet();
     });
 
-    // ==================== DESKTOP: DRAG & DROP ====================
+    // ── DESKTOP DRAG ──
     let dragged = null;
 
     document.addEventListener('dragstart', e => {
@@ -664,33 +614,93 @@
       }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
-    // ==================== DOWNLOAD ====================
+    // ── DOWNLOAD — 9:16 canvas with title ──
     async function downloadTierList() {
       const title = document.getElementById('tierTitle').value.trim() || 'BCA Tier List';
-      const sidebar = document.querySelector('.sidebar');
-      const btnRow  = document.querySelector('.btn-row');
-      const hint    = document.querySelector('.mobile-hint');
+
+      // Hide UI chrome
+      const sidebar  = document.querySelector('.sidebar');
+      const btnRow   = document.querySelector('.btn-row');
+      const hint     = document.querySelector('.mobile-hint');
+      const header   = document.querySelector('header');
       sidebar.style.display = 'none';
       btnRow.style.display  = 'none';
-      if (hint) hint.style.display = 'none';
+      hint.style.display    = 'none';
+      header.style.display  = 'none';
 
-      const canvas = await html2canvas(document.querySelector('.tiers-col'), {
+      // Capture just the tiers
+      const tiersEl = document.getElementById('tiers');
+      const tierCanvas = await html2canvas(tiersEl, {
         scale: 2,
         backgroundColor: '#0d0d0f',
-        logging: false
+        logging: false,
+        useCORS: true
       });
 
+      // Restore UI
       sidebar.style.display = '';
       btnRow.style.display  = '';
-      if (hint) hint.style.display = '';
+      hint.style.display    = '';
+      header.style.display  = '';
 
+      // Build 9:16 canvas
+      const W = 1080;
+      const H = 1920;
+      const PAD = 40;
+      const TITLE_H = 120;
+      const FOOTER_H = 60;
+
+      const out = document.createElement('canvas');
+      out.width  = W;
+      out.height = H;
+      const ctx = out.getContext('2d');
+
+      // Background
+      ctx.fillStyle = '#0d0d0f';
+      ctx.fillRect(0, 0, W, H);
+
+      // Title bar
+      ctx.fillStyle = '#17171a';
+      ctx.beginPath();
+      ctx.roundRect(PAD, PAD, W - PAD*2, TITLE_H, 14);
+      ctx.fill();
+
+      // Gold accent line under title box
+      ctx.fillStyle = '#ffd700';
+      ctx.fillRect(PAD, PAD + TITLE_H - 4, W - PAD*2, 4);
+
+      // Title text
+      ctx.fillStyle = '#ffd700';
+      ctx.font = 'bold 64px "Bebas Neue", Impact, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(title.toUpperCase(), W / 2, PAD + TITLE_H / 2);
+
+      // Draw tiers — scale to fit between title and footer
+      const availH = H - PAD - TITLE_H - 16 - FOOTER_H - PAD;
+      const availW = W - PAD * 2;
+      const scale  = Math.min(availW / tierCanvas.width, availH / tierCanvas.height);
+      const drawW  = tierCanvas.width  * scale;
+      const drawH  = tierCanvas.height * scale;
+      const drawX  = (W - drawW) / 2;
+      const drawY  = PAD + TITLE_H + 16;
+
+      ctx.drawImage(tierCanvas, drawX, drawY, drawW, drawH);
+
+      // Footer
+      ctx.fillStyle = '#888892';
+      ctx.font = '28px "DM Sans", Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('made with BCA Tier List', W / 2, H - PAD - FOOTER_H / 2);
+
+      // Download
       const link = document.createElement('a');
-      link.download = title.replace(/[^a-zA-Z0-9]/g, '_') + '.png';
-      link.href = canvas.toDataURL('image/png');
+      link.download = title.replace(/[^a-zA-Z0-9]/g, '_') + '_9x16.png';
+      link.href = out.toDataURL('image/png');
       link.click();
     }
 
-    // ==================== RESET ====================
     function resetTierList() {
       if (!confirm('Reset all rankings?')) return;
       document.querySelectorAll('.tier-content').forEach(tc => tc.innerHTML = '');
