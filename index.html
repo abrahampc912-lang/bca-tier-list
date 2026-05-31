@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BCA Tier List</title>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0f;
+      --surface: #17171a;
+      --surface2: #1f1f24;
+      --border: #2a2a30;
+      --text: #e8e8ec;
+      --muted: #888892;
+      --accent: #ffd700;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .logo {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 38px;
+      color: var(--accent);
+      letter-spacing: 3px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    #tierTitle {
+      flex: 1;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 24px;
+      letter-spacing: 2px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #tierTitle:focus { border-color: var(--accent); }
+
+    /* ── DESKTOP LAYOUT ── */
+    .layout {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .tiers-col { flex: 1; min-width: 0; }
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      position: sticky;
+      top: 20px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+    }
+    .sidebar-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 20px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    #unranked {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── TIER ROWS ── */
+    .tier {
+      display: flex;
+      align-items: stretch;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      overflow: hidden;
+      min-height: 110px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .tier.drag-over { border-color: var(--accent); background: rgba(255,215,0,0.04); }
+    .tier-label {
+      width: 60px;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      border-right: 2px solid var(--border);
+      flex-shrink: 0;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .tier-content {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px;
+      align-content: flex-start;
+      min-height: 106px;
+      transition: background 0.15s;
+    }
+    .tier-content.drag-over { background: rgba(255,255,255,0.04); }
+
+    /* ── CARDS ── */
+    .character {
+      width: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: grab;
+      transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s;
+      user-select: none;
+      -webkit-user-select: none;
+      border-radius: 10px;
+      padding: 4px;
+      position: relative;
+    }
+    .character:active { cursor: grabbing; }
+    .character.dragging { opacity: 0.35; transform: scale(0.93); }
+
+    /* MOBILE: selected state */
+    .character.selected {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      transform: scale(1.07);
+      box-shadow: 0 0 18px rgba(255,215,0,0.45);
+      z-index: 2;
+    }
+
+    .character img {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      border: 2px solid #444;
+      border-radius: 8px;
+      display: block;
+      pointer-events: none;
+      background: #2a2a30;
+    }
+    .character .avatar-fallback {
+      width: 70px;
+      height: 70px;
+      border: 2px solid #444;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2a2a30, #1a1a1f);
+      font-family: 'Bebas Neue', cursive;
+      font-size: 28px;
+      color: var(--muted);
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+    .character span {
+      margin-top: 5px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.2;
+      pointer-events: none;
+    }
+    .sidebar .character { width: 66px; }
+    .sidebar .character img,
+    .sidebar .character .avatar-fallback { width: 58px; height: 58px; }
+
+    /* drop indicator */
+    .drop-indicator {
+      width: 3px;
+      height: 70px;
+      background: var(--accent);
+      border-radius: 3px;
+      align-self: center;
+      pointer-events: none;
+      flex-shrink: 0;
+      box-shadow: 0 0 8px rgba(255,215,0,0.5);
+    }
+
+    /* ── BUTTONS ── */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    button {
+      flex: 1;
+      padding: 14px;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 18px;
+      letter-spacing: 2px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    button:hover { opacity: 0.85; }
+    button:active { transform: scale(0.97); }
+    .download-btn { background: var(--accent); color: #000; }
+    .reset-btn { background: var(--surface2); color: var(--muted); border: 2px solid var(--border); }
+
+    /* ── MOBILE HINT BANNER ── */
+    .mobile-hint {
+      display: none;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .mobile-hint strong { color: var(--accent); }
+
+    /* ── BOTTOM SHEET (mobile tier picker) ── */
+    .sheet-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 100;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .sheet-overlay.open { display: flex; }
+
+    .sheet {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-bottom: none;
+      border-radius: 20px 20px 0 0;
+      padding: 20px 16px 32px;
+      width: 100%;
+      max-width: 480px;
+      animation: slideUp 0.22s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 14px;
+    }
+
+    .sheet-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+    .sheet-preview img,
+    .sheet-preview .avatar-fallback {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid var(--accent);
+    }
+    .sheet-preview .avatar-fallback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2a2a30, #1a1a1f);
+      font-family: 'Bebas Neue', cursive;
+      font-size: 28px;
+      color: var(--muted);
+    }
+    .sheet-preview-name {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 22px;
+      letter-spacing: 1px;
+      color: var(--text);
+    }
+    .sheet-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .sheet-tiers {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .sheet-tier-btn {
+      padding: 14px 4px;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 26px;
+      color: #000;
+      cursor: pointer;
+      transition: transform 0.12s, box-shadow 0.12s;
+    }
+    .sheet-tier-btn:active { transform: scale(0.93); }
+
+    .sheet-cancel {
+      width: 100%;
+      padding: 14px;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 18px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    /* ── MOBILE OVERRIDES ── */
+    @media (max-width: 768px) {
+      body { padding: 12px; }
+      header { flex-wrap: wrap; }
+      .logo { font-size: 28px; }
+      #tierTitle { font-size: 20px; }
+
+      .layout { flex-direction: column; }
+      .sidebar { width: 100%; position: static; max-height: none; order: 2; }
+      .tiers-col { order: 1; }
+
+      .tier-label { width: 48px; font-size: 26px; }
+      .character { width: 70px; cursor: pointer; }
+      .character img, .character .avatar-fallback { width: 60px; height: 60px; }
+
+      .btn-row { flex-direction: column; }
+      button { width: 100%; }
+      .mobile-hint { display: block; }
+
+      /* hide desktop drag on mobile */
+      .character { -webkit-touch-callout: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">TIER</div>
+    <input type="text" id="tierTitle" value="BCA Tier List" placeholder="Title…">
+  </header>
+
+  <!-- Mobile hint -->
+  <div class="mobile-hint">
+    📱 <strong>Tap a card</strong> to select it, then <strong>tap a tier row</strong> to place it there
+  </div>
+
+  <div class="layout">
+    <div class="tiers-col">
+      <div id="tiers"></div>
+      <div class="btn-row">
+        <button class="download-btn" onclick="downloadTierList()">📥 Download PNG</button>
+        <button class="reset-btn" onclick="resetTierList()">↺ Reset</button>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-title">UNRANKED · <span id="unrankedCount">21</span></div>
+      <div id="unranked"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Sheet (mobile) -->
+  <div class="sheet-overlay" id="sheetOverlay">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-preview">
+        <div id="sheetAvatar"></div>
+        <div class="sheet-preview-name" id="sheetName"></div>
+      </div>
+      <div class="sheet-label">Place in tier →</div>
+      <div class="sheet-tiers" id="sheetTiers"></div>
+      <button class="sheet-cancel" onclick="closeSheet()">✕ Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    // ==================== DATA ====================
+    const classmates = [
+      "Reyna","Abigail","Remi","Sandee","Teresa",
+      "Emmai","Francis","Nghaka","Nick","Msa","Tlana",
+      "Ruatkima","Alex","Awmawma","Imma","Rempuia",
+      "Ahruaia","Respuia","Dindina","Sangtea","Philip","Ab-a"
+    ];
+
+    const tierData = [
+      { name:"S", color:"#ff4d4d" },
+      { name:"A", color:"#ff8c00" },
+      { name:"B", color:"#ffd60a" },
+      { name:"C", color:"#4ade80" },
+      { name:"D", color:"#22d3ee" },
+      { name:"E", color:"#818cf8" },
+      { name:"F", color:"#e879f9" }
+    ];
+
+    const isMobile = () => window.innerWidth <= 768;
+
+    // ==================== BUILD TIERS ====================
+    const tiersContainer = document.getElementById('tiers');
+    const unrankedContainer = document.getElementById('unranked');
+
+    tierData.forEach(tier => {
+      const div = document.createElement('div');
+      div.className = 'tier';
+      div.dataset.tier = tier.name;
+      div.innerHTML = `
+        <div class="tier-label" style="background:${tier.color}">${tier.name}</div>
+        <div class="tier-content" data-tier="${tier.name}"></div>
+      `;
+      tiersContainer.appendChild(div);
+    });
+
+    // ── Build bottom sheet buttons ──
+    const sheetTiersEl = document.getElementById('sheetTiers');
+    tierData.forEach(tier => {
+      const btn = document.createElement('button');
+      btn.className = 'sheet-tier-btn';
+      btn.style.background = tier.color;
+      btn.textContent = tier.name;
+      btn.onclick = () => placeSelectedInTier(tier.name);
+      sheetTiersEl.appendChild(btn);
+    });
+    // Also "back to unranked" in sheet
+    const unrankBtn = document.createElement('button');
+    unrankBtn.className = 'sheet-tier-btn';
+    unrankBtn.style.background = '#333';
+    unrankBtn.style.color = '#ccc';
+    unrankBtn.style.fontSize = '13px';
+    unrankBtn.style.letterSpacing = '0';
+    unrankBtn.textContent = '↩ Unrank';
+    unrankBtn.onclick = () => placeSelectedInTier(null);
+    sheetTiersEl.appendChild(unrankBtn);
+
+    // ==================== CARDS ====================
+    function makeCard(id, name) {
+      const card = document.createElement('div');
+      card.className = 'character';
+      card.dataset.id = id;
+      card.dataset.name = name;
+      card.draggable = true;
+
+      // Image with fallback
+      const img = document.createElement('img');
+      img.src = `images/${id}.jpg`;
+      img.alt = name;
+      img.onerror = function() {
+        const fb = document.createElement('div');
+        fb.className = 'avatar-fallback';
+        fb.textContent = name[0].toUpperCase();
+        card.replaceChild(fb, this);
+      };
+
+      const label = document.createElement('span');
+      label.textContent = name;
+
+      card.appendChild(img);
+      card.appendChild(label);
+      return card;
+    }
+
+    function buildCards() {
+      unrankedContainer.innerHTML = '';
+      classmates.forEach((name, i) => unrankedContainer.appendChild(makeCard(i+1, name)));
+      updateCount();
+    }
+
+    function updateCount() {
+      document.getElementById('unrankedCount').textContent =
+        unrankedContainer.querySelectorAll('.character').length;
+    }
+
+    buildCards();
+
+    // ==================== MOBILE: TAP TO SELECT + PLACE ====================
+    let selectedCard = null;
+
+    function selectCard(card) {
+      if (selectedCard) selectedCard.classList.remove('selected');
+      selectedCard = card;
+      card.classList.add('selected');
+      openSheet(card);
+    }
+
+    function clearSelection() {
+      if (selectedCard) selectedCard.classList.remove('selected');
+      selectedCard = null;
+    }
+
+    // Open bottom sheet
+    function openSheet(card) {
+      const overlay = document.getElementById('sheetOverlay');
+      document.getElementById('sheetName').textContent = card.dataset.name;
+
+      // Avatar in sheet
+      const avatarEl = document.getElementById('sheetAvatar');
+      avatarEl.innerHTML = '';
+      const img = card.querySelector('img');
+      const fb  = card.querySelector('.avatar-fallback');
+      if (img) {
+        const clone = img.cloneNode();
+        clone.style.width = '64px'; clone.style.height = '64px';
+        clone.style.borderRadius = '10px';
+        clone.style.border = '2px solid var(--accent)';
+        clone.style.objectFit = 'cover';
+        avatarEl.appendChild(clone);
+      } else if (fb) {
+        const clone = fb.cloneNode(true);
+        clone.style.width = '64px'; clone.style.height = '64px';
+        clone.style.borderRadius = '10px';
+        clone.style.border = '2px solid var(--accent)';
+        avatarEl.appendChild(clone);
+      }
+
+      overlay.classList.add('open');
+    }
+
+    function closeSheet() {
+      document.getElementById('sheetOverlay').classList.remove('open');
+      clearSelection();
+    }
+
+    function placeSelectedInTier(tierName) {
+      if (!selectedCard) { closeSheet(); return; }
+      if (tierName === null) {
+        unrankedContainer.appendChild(selectedCard);
+      } else {
+        const zone = document.querySelector(`.tier-content[data-tier="${tierName}"]`);
+        if (zone) zone.appendChild(selectedCard);
+      }
+      closeSheet();
+      updateCount();
+    }
+
+    // Tap on a tier row directly (alternative to sheet) on mobile
+    document.querySelectorAll('.tier').forEach(tierRow => {
+      tierRow.addEventListener('click', e => {
+        if (!isMobile()) return;
+        if (!selectedCard) return;
+        if (e.target.closest('.character')) return; // tapping a card in the tier — handle separately
+        const tierName = tierRow.dataset.tier;
+        placeSelectedInTier(tierName);
+      });
+    });
+
+    // Tap cards
+    document.addEventListener('click', e => {
+      if (!isMobile()) return;
+      const card = e.target.closest('.character');
+      if (!card) {
+        // tap elsewhere = deselect
+        if (!e.target.closest('.sheet') && !e.target.closest('#sheetOverlay')) clearSelection();
+        return;
+      }
+      e.stopPropagation();
+      if (selectedCard === card) { clearSelection(); return; }
+      selectCard(card);
+    });
+
+    // Close sheet on overlay tap
+    document.getElementById('sheetOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('sheetOverlay')) closeSheet();
+    });
+
+    // ==================== DESKTOP: DRAG & DROP ====================
+    let dragged = null;
+
+    document.addEventListener('dragstart', e => {
+      if (isMobile()) return;
+      const card = e.target.closest('.character');
+      if (!card) return;
+      dragged = card;
+      e.dataTransfer.setData('text/plain', card.dataset.id);
+      requestAnimationFrame(() => card.classList.add('dragging'));
+    });
+
+    document.addEventListener('dragend', () => {
+      if (dragged) dragged.classList.remove('dragging');
+      dragged = null;
+      document.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      updateCount();
+    });
+
+    function addDropZone(el) {
+      el.addEventListener('dragover', e => {
+        if (isMobile()) return;
+        e.preventDefault();
+        el.classList.add('drag-over');
+        document.querySelectorAll('.drop-indicator').forEach(d => d.remove());
+        const after = getDragAfter(el, e.clientX, e.clientY);
+        const ind = document.createElement('div');
+        ind.className = 'drop-indicator';
+        if (after) el.insertBefore(ind, after); else el.appendChild(ind);
+      });
+      el.addEventListener('dragleave', e => {
+        if (!el.contains(e.relatedTarget)) {
+          el.classList.remove('drag-over');
+          document.querySelectorAll('.drop-indicator').forEach(d => d.remove());
+        }
+      });
+      el.addEventListener('drop', e => {
+        if (isMobile()) return;
+        e.preventDefault();
+        el.classList.remove('drag-over');
+        document.querySelectorAll('.drop-indicator').forEach(d => d.remove());
+        const id = e.dataTransfer.getData('text/plain');
+        const card = document.querySelector(`.character[data-id="${id}"]`);
+        if (!card) return;
+        const after = getDragAfter(el, e.clientX, e.clientY);
+        if (after) el.insertBefore(card, after); else el.appendChild(card);
+        updateCount();
+      });
+    }
+
+    document.querySelectorAll('.tier-content').forEach(addDropZone);
+    addDropZone(unrankedContainer);
+
+    function getDragAfter(container, x, y) {
+      const cards = [...container.querySelectorAll('.character:not(.dragging)')];
+      return cards.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = x - box.left - box.width / 2;
+        if (offset < 0 && offset > closest.offset) return { offset, element: child };
+        return closest;
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    // ==================== DOWNLOAD ====================
+    async function downloadTierList() {
+      const title = document.getElementById('tierTitle').value.trim() || 'BCA Tier List';
+      const sidebar = document.querySelector('.sidebar');
+      const btnRow  = document.querySelector('.btn-row');
+      const hint    = document.querySelector('.mobile-hint');
+      sidebar.style.display = 'none';
+      btnRow.style.display  = 'none';
+      if (hint) hint.style.display = 'none';
+
+      const canvas = await html2canvas(document.querySelector('.tiers-col'), {
+        scale: 2,
+        backgroundColor: '#0d0d0f',
+        logging: false
+      });
+
+      sidebar.style.display = '';
+      btnRow.style.display  = '';
+      if (hint) hint.style.display = '';
+
+      const link = document.createElement('a');
+      link.download = title.replace(/[^a-zA-Z0-9]/g, '_') + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // ==================== RESET ====================
+    function resetTierList() {
+      if (!confirm('Reset all rankings?')) return;
+      document.querySelectorAll('.tier-content').forEach(tc => tc.innerHTML = '');
+      buildCards();
+    }
+  </script>
+</body>
+</html>
