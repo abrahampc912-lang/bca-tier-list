@@ -628,14 +628,36 @@
       hint.style.display    = 'none';
       header.style.display  = 'none';
 
-      // Capture just the tiers
+      // Force desktop size on all cards/tiers so capture is always full quality
       const tiersEl = document.getElementById('tiers');
+      const allCards = tiersEl.querySelectorAll('.character');
+      const allImgs  = tiersEl.querySelectorAll('.character img, .character .avatar-fallback');
+      const allTierLabels = tiersEl.querySelectorAll('.tier-label');
+      const allTierRows   = tiersEl.querySelectorAll('.tier');
+
+      // Override mobile-shrunken sizes temporarily
+      tiersEl.style.width = '700px';
+      allCards.forEach(c => { c.style.width = '80px'; });
+      allImgs.forEach(i  => { i.style.width = '70px'; i.style.height = '70px'; });
+      allTierLabels.forEach(l => { l.style.width = '60px'; l.style.fontSize = '34px'; });
+      allTierRows.forEach(r => { r.style.minHeight = '110px'; });
+
+      // Capture just the tiers
       const tierCanvas = await html2canvas(tiersEl, {
         scale: 2,
         backgroundColor: '#0d0d0f',
         logging: false,
-        useCORS: true
+        useCORS: true,
+        width: 700,
+        windowWidth: 1200
       });
+
+      // Restore everything
+      tiersEl.style.width = '';
+      allCards.forEach(c => { c.style.width = ''; });
+      allImgs.forEach(i  => { i.style.width = ''; i.style.height = ''; });
+      allTierLabels.forEach(l => { l.style.width = ''; l.style.fontSize = ''; });
+      allTierRows.forEach(r => { r.style.minHeight = ''; });
 
       // Restore UI
       sidebar.style.display = '';
@@ -645,7 +667,7 @@
 
       // Build 9:16 canvas
       const W = 1080;
-      const H = 1350;
+      const H = 1630;
       const PAD = 40;
       const TITLE_H = 120;
       const FOOTER_H = 60;
@@ -692,7 +714,7 @@
       ctx.font = '28px "DM Sans", Arial, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('made with BCA Tier List', W / 2, H - PAD - FOOTER_H / 2);
+      ctx.fillText('BCA Tier List', W / 2, H - PAD - FOOTER_H / 2);
 
       // Download
       const link = document.createElement('a');
