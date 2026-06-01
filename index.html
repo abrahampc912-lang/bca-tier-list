@@ -62,8 +62,9 @@
       align-items: flex-start;
     }
     .tiers-col { flex: 1; min-width: 0; }
+    
     .sidebar {
-      width: 220px;
+      width: 260px;
       flex-shrink: 0;
       background: var(--surface);
       border: 2px solid var(--border);
@@ -84,7 +85,12 @@
       border-bottom: 1px solid var(--border);
       padding-bottom: 10px;
     }
-    #unranked {
+    
+    .pool-spacing {
+      margin-bottom: 28px;
+    }
+
+    #unranked, #teachersUnranked, #specialUnranked {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
@@ -94,22 +100,26 @@
     .sidebar::-webkit-scrollbar-track { background: transparent; }
     .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
+    /* ==========================================================================
+       FLUSH VERTICALLY EXPANDING TIER ROW LAYOUT
+       ========================================================================== */
     .tier {
       display: flex;
       align-items: stretch;
       background: var(--surface);
       border: 2px solid var(--border);
       border-radius: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
       overflow: hidden;
-      min-height: 110px;
+      min-height: 112px;
       transition: border-color 0.2s, background 0.2s;
     }
     .tier.drag-over { border-color: var(--accent); background: rgba(255,215,0,0.04); }
+    
     .tier-label {
-      width: 60px;
+      width: 70px;
       font-family: 'Bebas Neue', cursive;
-      font-size: 34px;
+      font-size: 38px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -118,83 +128,128 @@
       flex-shrink: 0;
       text-shadow: 0 1px 2px rgba(0,0,0,0.3);
     }
+    
     .tier-content {
       flex: 1;
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 10px;
+      flex-wrap: wrap; 
+      gap: 4px;
+      padding: 4px;
       align-content: flex-start;
-      min-height: 106px;
       transition: background 0.15s;
     }
     .tier-content.drag-over { background: rgba(255,255,255,0.04); }
 
+    /* ==========================================================================
+       OPTIMIZED CARD GRID SIZING & COMPONENT STYLES
+       ========================================================================== */
     .character {
-      width: 80px;
+      width: 90px;
+      height: 104px;
       display: flex;
       flex-direction: column;
       align-items: center;
       cursor: grab;
+      flex-shrink: 0; 
       transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s;
       user-select: none;
       -webkit-user-select: none;
-      border-radius: 10px;
-      padding: 4px;
+      border-radius: 8px;
+      padding: 0;
       position: relative;
     }
     .character:active { cursor: grabbing; }
     .character.dragging { opacity: 0.35; transform: scale(0.93); }
     .character.selected {
       outline: 3px solid var(--accent);
-      outline-offset: 2px;
-      transform: scale(1.07);
-      box-shadow: 0 0 18px rgba(255,215,0,0.45);
+      outline-offset: 1px;
+      transform: scale(1.05);
+      box-shadow: 0 0 14px rgba(255,215,0,0.45);
       z-index: 2;
     }
     .character img {
-      width: 70px;
-      height: 70px;
+      width: 86px;  
+      height: 86px; 
       object-fit: cover;
-      border: 2px solid #444;
       border-radius: 8px;
       display: block;
       pointer-events: none;
-      background: #2a2a30;
+      background: transparent; /* Allows PNG transparency to show up cleanly */
     }
     .character .avatar-fallback {
-      width: 70px;
-      height: 70px;
-      border: 2px solid #444;
+      width: 86px;
+      height: 86px;
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #2a2a30, #1a1a1f);
       font-family: 'Bebas Neue', cursive;
-      font-size: 28px;
+      font-size: 32px;
       color: var(--muted);
       pointer-events: none;
       flex-shrink: 0;
     }
     .character span {
-      margin-top: 5px;
+      margin-top: 3px;
       font-size: 11px;
-      color: var(--muted);
+      color: #e8e8ec; /* Custom Name Plate Font Color Block */
       text-align: center;
-      line-height: 1.2;
+      line-height: 1.1;
       pointer-events: none;
+      width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .sidebar .character { width: 66px; }
+    
+    /* Sidebar Specific Compact Scalers */
+    .sidebar .character { width: 78px; height: 92px; }
     .sidebar .character img,
-    .sidebar .character .avatar-fallback { width: 58px; height: 58px; }
+    .sidebar .character .avatar-fallback { width: 74px; height: 74px; }
+    .sidebar .character .avatar-fallback { font-size: 28px; }
+
+    /* ==========================================================================
+       ROLE-BASED EXTRA LAYER BORDER COLORS
+       ========================================================================== */
+
+    /* 1. Students (Vibrant Blue Outlines) */
+    .character img,
+    .character .avatar-fallback {
+      border: 2px solid #0062ffa9;
+      background: #2a2a30; 
+    }
+
+    /* 2. Teachers (Vibrant Red Outlines + Transparent PNG Support) */
+    .sidebar #teachersUnranked .character img,
+    .tier-content .character[data-id^="t-"] img {
+      border: 2px solid #bd0000b2;
+      background: transparent;
+    }
+    .sidebar #teachersUnranked .character .avatar-fallback,
+    .tier-content .character[data-id^="t-"] .avatar-fallback {
+      border: 2px solid #bd0000b2;
+      background: linear-gradient(135deg, #451a1a, #1a0d0d);
+    }
+
+    /* 3. Specials (Clean Crisp White Outlines) */
+    .sidebar #specialUnranked .character img,
+    .tier-content .character[data-id^="s-"] img {
+      border: 2px solid #ffffff;
+      background: #2a2a30;
+    }
+    .sidebar #specialUnranked .character .avatar-fallback,
+    .tier-content .character[data-id^="s-"] .avatar-fallback {
+      border: 2px solid #ffffff;
+      background: linear-gradient(135deg, #333338, #16161a);
+    }
 
     .drop-indicator {
       width: 3px;
-      height: 70px;
+      height: 86px;
       background: var(--accent);
       border-radius: 3px;
-      align-self: center;
+      align-self: flex-start;
+      margin-top: 2px;
       pointer-events: none;
       flex-shrink: 0;
       box-shadow: 0 0 8px rgba(255,215,0,0.5);
@@ -274,10 +329,10 @@
     }
     .sheet-preview img,
     .sheet-preview .avatar-fallback {
-      width: 64px;
-      height: 64px;
+      width: 90px;
+      height: 90px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 20px;
       border: 2px solid var(--accent);
     }
     .sheet-preview .avatar-fallback {
@@ -336,14 +391,15 @@
     @media (max-width: 768px) {
       body { padding: 12px; }
       header { flex-wrap: wrap; }
-      .logo { font-size: 28px; }
+      .logo { font-size: 90px; }
       #tierTitle { font-size: 20px; }
       .layout { flex-direction: column; }
       .sidebar { width: 100%; position: static; max-height: none; order: 2; }
       .tiers-col { order: 1; }
       .tier-label { width: 48px; font-size: 26px; }
-      .character { width: 70px; cursor: pointer; }
-      .character img, .character .avatar-fallback { width: 60px; height: 60px; }
+      .character { width: 76px; height: 90px; cursor: pointer; }
+      .character img, .character .avatar-fallback { width: 70px; height: 70px; }
+      .tier { min-height: 98px; }
       .btn-row { flex-direction: column; }
       button { width: 100%; }
       .mobile-hint { display: block; }
@@ -370,9 +426,16 @@
         <button class="reset-btn" onclick="resetTierList()">↺ Reset</button>
       </div>
     </div>
+    
     <div class="sidebar">
-      <div class="sidebar-title">UNRANKED · <span id="unrankedCount">21</span></div>
-      <div id="unranked"></div>
+      <div class="sidebar-title">STUDENTS · <span id="unrankedCount">0</span></div>
+      <div id="unranked" class="pool-spacing"></div>
+      
+      <div class="sidebar-title">TEACHERS · <span id="teachersCount">0</span></div>
+      <div id="teachersUnranked" class="pool-spacing"></div>
+
+      <div class="sidebar-title">SPECIAL · <span id="specialCount">0</span></div>
+      <div id="specialUnranked"></div>
     </div>
   </div>
 
@@ -397,6 +460,16 @@
       "Ahruaia","Respuia","Dindina","Sangtea","Philip","Ab-a"
     ];
 
+    const teachers = [
+      "Sir Sena", "HOD Marina", "Sir Chhamz", "Miss Adawngi","Miss Mawipuii",
+      "Sir Remtluanga","Miss Rinsangi","Miss Malsawmi","Miss Sangpuii","Miss Sangzuali",
+      "Vanlalhruaia","?"
+    ];
+
+    const special = [
+      "Jonas"
+    ];
+
     const tierData = [
       { name:"S", color:"#ff4d4d" },
       { name:"A", color:"#ff8c00" },
@@ -411,6 +484,8 @@
 
     const tiersContainer = document.getElementById('tiers');
     const unrankedContainer = document.getElementById('unranked');
+    const teachersContainerEl = document.getElementById('teachersUnranked');
+    const specialContainerEl = document.getElementById('specialUnranked');
 
     tierData.forEach(tier => {
       const div = document.createElement('div');
@@ -448,15 +523,22 @@
       card.dataset.id = id;
       card.dataset.name = name;
       card.draggable = true;
+
       const img = document.createElement('img');
       img.src = `images/${id}.jpg`;
       img.alt = name;
+
       img.onerror = function() {
-        const fb = document.createElement('div');
-        fb.className = 'avatar-fallback';
-        fb.textContent = name[0].toUpperCase();
-        card.replaceChild(fb, this);
+        if (!this.src.endsWith('.png')) {
+          this.src = `images/${id}.png`; 
+        } else {
+          const fb = document.createElement('div');
+          fb.className = 'avatar-fallback';
+          fb.textContent = name[0].toUpperCase();
+          card.replaceChild(fb, this);
+        }
       };
+
       const label = document.createElement('span');
       label.textContent = name;
       card.appendChild(img);
@@ -466,13 +548,30 @@
 
     function buildCards() {
       unrankedContainer.innerHTML = '';
+      teachersContainerEl.innerHTML = '';
+      specialContainerEl.innerHTML = ''; 
+      
       classmates.forEach((name, i) => unrankedContainer.appendChild(makeCard(i+1, name)));
+      teachers.forEach((name, i) => teachersContainerEl.appendChild(makeCard(`t-${i+1}`, name)));
+      special.forEach((name, i) => specialContainerEl.appendChild(makeCard(`s-${i+1}`, name)));
+
       updateCount();
     }
 
     function updateCount() {
       document.getElementById('unrankedCount').textContent =
         unrankedContainer.querySelectorAll('.character').length;
+        
+      document.getElementById('teachersCount').textContent =
+        teachersContainerEl.querySelectorAll('.character').length;
+      
+      document.getElementById('specialCount').textContent =
+        specialContainerEl.querySelectorAll('.character').length;
+    }
+
+    function closeSheet() {
+      document.getElementById('sheetOverlay').classList.remove('open');
+      clearSelection();
     }
 
     buildCards();
@@ -500,25 +599,26 @@
       const fb  = card.querySelector('.avatar-fallback');
       if (img) {
         const clone = img.cloneNode();
-        clone.style.cssText = 'width:64px;height:64px;border-radius:10px;border:2px solid var(--accent);object-fit:cover;';
+        clone.style.cssText = 'width:90px;height:90px;border-radius:20px;border:2px solid var(--accent);object-fit:cover;';
         avatarEl.appendChild(clone);
       } else if (fb) {
         const clone = fb.cloneNode(true);
-        clone.style.cssText = 'width:64px;height:64px;border-radius:10px;border:2px solid var(--accent);';
+        clone.style.cssText = 'width:90px;height:90px;border-radius:20px;border:2px solid var(--accent);';
         avatarEl.appendChild(clone);
       }
       document.getElementById('sheetOverlay').classList.add('open');
     }
 
-    function closeSheet() {
-      document.getElementById('sheetOverlay').classList.remove('open');
-      clearSelection();
-    }
-
     function placeSelectedInTier(tierName) {
       if (!selectedCard) { closeSheet(); return; }
       if (tierName === null) {
-        unrankedContainer.appendChild(selectedCard);
+        if (selectedCard.dataset.id.toString().startsWith('t-')) {
+          teachersContainerEl.appendChild(selectedCard);
+        } else if (selectedCard.dataset.id.toString().startsWith('s-')) {
+          specialContainerEl.appendChild(selectedCard);
+        } else {
+          unrankedContainer.appendChild(selectedCard);
+        }
       } else {
         const zone = document.querySelector(`.tier-content[data-tier="${tierName}"]`);
         if (zone) zone.appendChild(selectedCard);
@@ -603,6 +703,8 @@
 
     document.querySelectorAll('.tier-content').forEach(addDropZone);
     addDropZone(unrankedContainer);
+    addDropZone(teachersContainerEl);
+    addDropZone(specialContainerEl);
 
     function getDragAfter(container, x, y) {
       const cards = [...container.querySelectorAll('.character:not(.dragging)')];
@@ -614,11 +716,14 @@
       }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
-    // ── DOWNLOAD — 9:16 canvas with title ──
+    // ── DOWNLOAD ──
     async function downloadTierList() {
       const title = document.getElementById('tierTitle').value.trim() || 'BCA Tier List';
 
-      // Hide UI chrome
+      if (document.fonts) {
+        await document.fonts.ready;
+      }
+
       const sidebar  = document.querySelector('.sidebar');
       const btnRow   = document.querySelector('.btn-row');
       const hint     = document.querySelector('.mobile-hint');
@@ -628,44 +733,43 @@
       hint.style.display    = 'none';
       header.style.display  = 'none';
 
-      // Force desktop size on all cards/tiers so capture is always full quality
       const tiersEl = document.getElementById('tiers');
       const allCards = tiersEl.querySelectorAll('.character');
       const allImgs  = tiersEl.querySelectorAll('.character img, .character .avatar-fallback');
       const allTierLabels = tiersEl.querySelectorAll('.tier-label');
       const allTierRows   = tiersEl.querySelectorAll('.tier');
+      const allContents   = tiersEl.querySelectorAll('.tier-content');
 
-      // Override mobile-shrunken sizes temporarily
-      tiersEl.style.width = '700px';
-      allCards.forEach(c => { c.style.width = '80px'; });
-      allImgs.forEach(i  => { i.style.width = '70px'; i.style.height = '70px'; });
-      allTierLabels.forEach(l => { l.style.width = '60px'; l.style.fontSize = '34px'; });
-      allTierRows.forEach(r => { r.style.minHeight = '110px'; });
+      tiersEl.style.width = '750px'; 
+      allCards.forEach(c => { c.style.width = '90px'; c.style.height = '104px'; });
+      allImgs.forEach(i  => { i.style.width = '86px'; i.style.height = '86px'; });
+      allTierLabels.forEach(l => { l.style.width = '70px'; l.style.fontSize = '38px'; });
+      allTierRows.forEach(r => { r.style.minHeight = '112px'; });
+      allContents.forEach(ct => { ct.style.padding = '4px'; ct.style.gap = '4px'; });
 
-      // Capture just the tiers
+      await new Promise(r => setTimeout(r, 100));
+
       const tierCanvas = await html2canvas(tiersEl, {
         scale: 2,
         backgroundColor: '#0d0d0f',
         logging: false,
         useCORS: true,
-        width: 700,
+        width: 750,
         windowWidth: 1200
       });
 
-      // Restore everything
       tiersEl.style.width = '';
-      allCards.forEach(c => { c.style.width = ''; });
+      allCards.forEach(c => { c.style.width = ''; c.style.height = ''; });
       allImgs.forEach(i  => { i.style.width = ''; i.style.height = ''; });
       allTierLabels.forEach(l => { l.style.width = ''; l.style.fontSize = ''; });
       allTierRows.forEach(r => { r.style.minHeight = ''; });
+      allContents.forEach(ct => { ct.style.padding = ''; ct.style.gap = ''; });
 
-      // Restore UI
       sidebar.style.display = '';
       btnRow.style.display  = '';
       hint.style.display    = '';
       header.style.display  = '';
 
-      // Build 9:16 canvas
       const W = 1080;
       const H = 1630;
       const PAD = 40;
@@ -677,28 +781,33 @@
       out.height = H;
       const ctx = out.getContext('2d');
 
-      // Background
       ctx.fillStyle = '#0d0d0f';
       ctx.fillRect(0, 0, W, H);
 
-      // Title bar
+      const rX = PAD, rY = PAD, rW = W - PAD*2, rH = TITLE_H, rRadius = 14;
       ctx.fillStyle = '#17171a';
       ctx.beginPath();
-      ctx.roundRect(PAD, PAD, W - PAD*2, TITLE_H, 14);
+      ctx.moveTo(rX + rRadius, rY);
+      ctx.lineTo(rX + rW - rRadius, rY);
+      ctx.quadraticCurveTo(rX + rW, rY, rX + rW, rY + rRadius);
+      ctx.lineTo(rX + rW, rY + rH - rRadius);
+      ctx.quadraticCurveTo(rX + rW, rY + rH, rX + rW - rRadius, rY + rH);
+      ctx.lineTo(rX + rRadius, rY + rH - rRadius);
+      ctx.quadraticCurveTo(rX, rY + rH, rX, rY + rH - rRadius);
+      ctx.lineTo(rX, rY + rRadius);
+      ctx.quadraticCurveTo(rX, rY, rX + rRadius, rY);
+      ctx.closePath();
       ctx.fill();
 
-      // Gold accent line under title box
       ctx.fillStyle = '#ffd700';
       ctx.fillRect(PAD, PAD + TITLE_H - 4, W - PAD*2, 4);
 
-      // Title text
       ctx.fillStyle = '#ffd700';
       ctx.font = 'bold 64px "Bebas Neue", Impact, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(title.toUpperCase(), W / 2, PAD + TITLE_H / 2);
 
-      // Draw tiers — scale to fit between title and footer
       const availH = H - PAD - TITLE_H - 16 - FOOTER_H - PAD;
       const availW = W - PAD * 2;
       const scale  = Math.min(availW / tierCanvas.width, availH / tierCanvas.height);
@@ -709,14 +818,12 @@
 
       ctx.drawImage(tierCanvas, drawX, drawY, drawW, drawH);
 
-      // Footer
       ctx.fillStyle = '#888892';
       ctx.font = '28px "DM Sans", Arial, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('BCA Tier List', W / 2, H - PAD - FOOTER_H / 2);
 
-      // Download
       const link = document.createElement('a');
       link.download = title.replace(/[^a-zA-Z0-9]/g, '_') + '_9x16.png';
       link.href = out.toDataURL('image/png');
